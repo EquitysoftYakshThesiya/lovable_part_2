@@ -1,0 +1,41 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment variables and API keys - KEEP FILES, DON'T COMMIT
+.env
+.env.local
+.env.production
+.env.staging
+supabase/.env.local
+*.key
+*api-keys*
+*secrets*
+
+# Files containing API keys - KEEP FILES, DON'T COMMIT
+deploy-function.md
+SETUP_EMAIL.md
+DEPLOY_NOW.md
+deploy.bat
+quick-deploy.bat

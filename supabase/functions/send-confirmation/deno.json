@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.window", "deno.ns", "deno.unstable"],
+    "allowJs": true,
+    "strict": false,
+    "noImplicitAny": false
+  },
+  "imports": {
+    "resend": "npm:resend@2.0.0"
+  }
+}

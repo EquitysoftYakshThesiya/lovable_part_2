@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Email Function</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .loading { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Email Function</h1>
+    <p>Use this to test your Supabase email function and debug issues.</p>
+    
+    <form id="emailForm">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="Test User" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="your-email@example.com" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="industry">Industry:</label>
+            <select id="industry" name="industry" required>
+                <option value="Technology">Technology</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Finance">Finance</option>
+                <option value="Education">Education</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Retail">Retail</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        
+        <button type="submit">🚀 Send Test Email</button>
+    </form>
+    
+    <div id="result"></div>
+
+    <script>
+        const FUNCTION_URL = 'https://retstrxkoqtmwjyoqiqv.supabase.co/functions/v1/send-confirmation';
+        
+        document.getElementById('emailForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            const formData = new FormData(e.target);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                industry: formData.get('industry')
+            };
+            
+            // Show loading state
+            resultDiv.innerHTML = `
+                <div class="result loading">
+                    <h3>🔄 Sending email...</h3>
+                    <p>Testing function with data: ${JSON.stringify(data, null, 2)}</p>
+                </div>
+            `;
+            
+            try {
+                console.log('Sending request to:', FUNCTION_URL);
+                console.log('Request data:', data);
+                
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (parseError) {
+                    responseData = { error: 'Invalid JSON response', rawResponse: responseText };
+                }
+                
+                if (response.ok && responseData.success) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <h3>✅ Email sent successfully!</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Email ID:</strong> ${responseData.emailId || 'N/A'}</p>
+                            <p><strong>Message:</strong> ${responseData.message}</p>
+                            <p><strong>Timestamp:</strong> ${responseData.timestamp}</p>
+                            <p>Check your email inbox (and spam folder) for the welcome email.</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <h3>❌ Email failed to send</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Error:</strong> ${responseData.error || 'Unknown error'}</p>
+                            <details>
+                                <summary>Full Response</summary>
+                                <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                            </details>
+                            <h4>Common Issues:</h4>
+                            <ul>
+                                <li>Environment variables not set in Supabase Dashboard</li>
+                                <li>Invalid Resend API key</li>
+                                <li>Email domain not verified in Resend</li>
+                                <li>Rate limiting</li>
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Fetch error:', error);
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Network Error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>This could indicate:</p>
+                        <ul>
+                            <li>Function not deployed</li>
+                            <li>CORS issues</li>
+                            <li>Network connectivity problems</li>
+                            <li>Function URL incorrect</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
